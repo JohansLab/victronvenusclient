@@ -1,10 +1,11 @@
 """Logic for handling Victron devices, and routing updates to the appropriate metrics."""
+
 from __future__ import annotations
 
 from logging import getLogger
 from typing import TYPE_CHECKING
 
-from victronvenusclient.constants import DeviceType,PLACEHOLDER_PHASE, MessageType
+from victronvenusclient.constants import DeviceType, PLACEHOLDER_PHASE, MessageType
 from victronvenusclient.metric import Metric
 
 if TYPE_CHECKING:
@@ -40,7 +41,10 @@ class Device:
         self._firmware_version = ""
 
     def _set_device_property_from_topic(
-        self, parsed_topic: ParsedTopic, topic_desc: TopicDescriptor, payload: str # noqa: ARG002 pylint: disable=unused-argument
+        self,
+        parsed_topic: ParsedTopic,
+        topic_desc: TopicDescriptor,
+        payload: str,  # noqa: ARG002 pylint: disable=unused-argument
     ) -> None:
         """Set a device property from a topic."""
         short_id = topic_desc.short_id
@@ -59,7 +63,6 @@ class Device:
         if short_id == "victron_productid":
             return  # ignore for now
 
-
         if short_id == "model":
             self._model = payload
         elif short_id == "serial_number":
@@ -76,19 +79,18 @@ class Device:
         if short_id == "model" and self._device_name == "":
             self._device_name = payload
 
-    async def handle_message(
-        self, parsed_topic: ParsedTopic, topic_desc: TopicDescriptor, payload: str
-    ) -> None:
+    async def handle_message(self, parsed_topic: ParsedTopic, topic_desc: TopicDescriptor, payload: str) -> None:
         """Handle a message."""
 
-        # if we created the device on a generic topic we need to fix the device type as soon as we get a more specific topic
+        # if we created the device on a generic topic we need to fix the device type as soon
+        #  as we get a more specific topic
         if self.device_type == DeviceType.ANY and topic_desc.device_type != DeviceType.ANY:
             self._device_type = topic_desc.device_type
 
         if topic_desc.message_type == MessageType.ATTRIBUTE:
             self._set_device_property_from_topic(parsed_topic, topic_desc, payload)
         elif topic_desc.message_type == MessageType.METRIC:
-            value  = payload
+            value = payload
             if topic_desc.unwrapper is not None:
                 value = topic_desc.unwrapper(payload)
             if value is None:
@@ -99,28 +101,19 @@ class Device:
                 short_id = short_id.replace(PLACEHOLDER_PHASE, parsed_topic.phase)
             metric_id = f"{self.unique_id}_{short_id}"
 
-            metric = self._get_or_create_metric(
-                metric_id, short_id,parsed_topic, topic_desc, payload
-            )
+            metric = self._get_or_create_metric(metric_id, short_id, parsed_topic, topic_desc, payload)
 
             await metric.handle_message(parsed_topic, topic_desc, value)
 
     def _get_or_create_metric(
-        self,
-        metric_id: str,
-        short_id: str,
-        parsed_topic: ParsedTopic,
-        topic_desc: TopicDescriptor,
-        payload: str ) -> Metric:
-
+        self, metric_id: str, short_id: str, parsed_topic: ParsedTopic, topic_desc: TopicDescriptor, payload: str
+    ) -> Metric:
         """Get or create a metric."""
         metric = self._metrics.get(metric_id)
         if metric is None:
-            metric = Metric(
-                metric_id, topic_desc, parsed_topic, payload
-            )
+            metric = Metric(metric_id, topic_desc, parsed_topic, payload)
             self._metrics[metric_id] = metric
-            setattr(self,short_id,metric)
+            setattr(self, short_id, metric)
 
         return metric
 
@@ -167,12 +160,12 @@ class Device:
     def device_type(self) -> DeviceType:
         """Return the device type."""
         return self._device_type
-    
+
     @property
     def native_device_type(self) -> str:
         """Return the native device type."""
         return self._native_device_type
-    
+
     @property
     def firmware_version(self) -> str:
         """Return the firmware version of the device."""

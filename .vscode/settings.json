@@ -1,10 +1,15 @@
 {
     "cSpell.words": [
+        "CCGX",
+        "Cerbo",
+        "Ekrano",
+        "fullvictrondump",
         "gmqtt",
         "Johan",
         "mqtt",
         "Plessis",
         "productid",
+        "pylint",
         "unwrapper",
         "unwrappers",
         "VEBUS",
@@ -21,5 +26,10 @@
     "python.analysis.diagnosticSeverityOverrides": {
 
     },
-    "python.defaultInterpreterPath": "venv/bin/python"
+    "python.defaultInterpreterPath": "venv/bin/python",
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

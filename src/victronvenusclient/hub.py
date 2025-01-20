@@ -21,14 +21,14 @@ class Hub:
 
     def __init__(
         self,
-        host: str ,
+        host: str,
         port: int,
-        username: str ,
-        password: str ,
+        username: str,
+        password: str,
         use_ssl: bool,
-        installation_id: str  = None,
-        model_name: str  = None,
-        serial: str = 'noserial',
+        installation_id: str = None,
+        model_name: str = None,
+        serial: str = "noserial",
     ) -> None:
         """Initialize."""
         self._model_name = model_name
@@ -53,7 +53,6 @@ class Hub:
             self._client.set_auth_credentials(self.username, self.password)
         await self._client.connect(host=self.host, port=self.port, ssl=self.use_ssl)
 
-
     async def initialize_devices_and_metrics(self) -> None:
         """Initialize devices and all the metrics."""
         if self._installation_id is None:
@@ -61,7 +60,6 @@ class Hub:
         await self._setup_subscriptions()
         await self.keep_alive()
         await self._wait_for_first_refresh()
-
 
     async def disconnect(self) -> None:
         """Disconnect from the hub."""
@@ -72,7 +70,7 @@ class Hub:
         self._client = None
 
     async def keep_alive(self) -> None:
-        """Send a keep alive message to the hub. Updates will only be made to the metrics 
+        """Send a keep alive message to the hub. Updates will only be made to the metrics
         for the 60 seconds following this method call."""
         # cspell:disable-next-line
         keep_alive_topic = f"R/{self._installation_id}/keepalive"
@@ -81,10 +79,9 @@ class Hub:
             if self._client.is_connected:
                 self._client.publish(keep_alive_topic, b"1")
 
-
     async def create_full_raw_snapshot(self) -> dict:
-        """Create a full raw snapshot of the current state of the Venus OS device. 
-            Should not be used in conjunction with initialize_devices_and_metrics()."""
+        """Create a full raw snapshot of the current state of the Venus OS device.
+        Should not be used in conjunction with initialize_devices_and_metrics()."""
         self._snapshot = {}
         if self._installation_id is None:
             self._installation_id = await self._read_installation_id()
@@ -100,7 +97,12 @@ class Hub:
         d[keys[-1]] = value
 
     async def _on_snapshot_message(
-        self, client: gmqttClient, topic: str, payload: bytes, qos: int, retain: bool  # pylint: disable=unused-argument
+        self,
+        client: gmqttClient,
+        topic: str,
+        payload: bytes,
+        qos: int,
+        retain: bool,  # pylint: disable=unused-argument
     ) -> None:
         topic_parts = topic.split("/")
         value = json.loads(payload.decode())
@@ -108,9 +110,13 @@ class Hub:
         if "full_publish_completed" in topic:
             self._first_refresh_event.set()
 
-
     async def _on_installation_id_message(
-        self, client: gmqttClient, topic: str, payload: bytes, qos: int, retain: bool  # pylint: disable=unused-argument
+        self,
+        client: gmqttClient,
+        topic: str,
+        payload: bytes,
+        qos: int,
+        retain: bool,  # pylint: disable=unused-argument
     ) -> None:
         """Handle an incoming message from the hub."""
 
@@ -119,17 +125,13 @@ class Hub:
         if len(topic_parts) != 5:
             return
 
-        if (
-            topic_parts[2] == "system"
-            and topic_parts[3] == "0"
-            and topic_parts[4] == "Serial"
-        ):
+        if topic_parts[2] == "system" and topic_parts[3] == "0" and topic_parts[4] == "Serial":
             payload_json = json.loads(payload.decode())
             self._installation_id = payload_json.get("value")
             self._installation_id_event.set()
 
     async def _read_installation_id(self) -> str:
-        """Read the installation id for the Victron installation. Depends on no other 
+        """Read the installation id for the Victron installation. Depends on no other
         subscriptions being active."""
 
         if self._client is None:
@@ -144,7 +146,7 @@ class Hub:
         return str(self.installation_id)
 
     async def verify_connection_details(self) -> str:
-        """Verify the username and password. This method connects and disconnects 
+        """Verify the username and password. This method connects and disconnects
         from the Venus OS device. Do not call connect() before this method."""
 
         try:
@@ -177,14 +179,10 @@ class Hub:
         "full_publish_completed" MQTT message."""
         await asyncio.wait_for(self._first_refresh_event.wait(), timeout=60)
 
-    def _create_device_unique_id(
-        self, installation_id: str, device_type: str, device_id: str
-    ) -> str:
+    def _create_device_unique_id(self, installation_id: str, device_type: str, device_id: str) -> str:
         return f"{installation_id}_{device_type}_{device_id}"
 
-    def _get_or_create_device(
-        self, parsed_topic: ParsedTopic, desc: TopicDescriptor
-    ) -> Device:
+    def _get_or_create_device(self, parsed_topic: ParsedTopic, desc: TopicDescriptor) -> Device:
         unique_id = self._create_device_unique_id(
             parsed_topic.installation_id,
             parsed_topic.device_type,
@@ -209,7 +207,12 @@ class Hub:
         return device
 
     async def _on_message(
-        self, client: gmqttClient, topic: str, payload: bytes, qos: int, retain: bool  # noqa:  ARG002 pylint: disable=unused-argument
+        self,
+        client: gmqttClient,
+        topic: str,
+        payload: bytes,
+        qos: int,
+        retain: bool,  # noqa:  ARG002 pylint: disable=unused-argument
     ) -> None:
         """Handle an incoming message from the hub."""
 
@@ -248,8 +251,7 @@ class Hub:
 
     def get_metric_from_unique_id(self, unique_id: str) -> Metric:
         """Get a metric from a unique id."""
-        device = self.get_device_from_unique_id( \
-                self._get_device_unique_id_from_metric_unique_id(unique_id))
+        device = self.get_device_from_unique_id(self._get_device_unique_id_from_metric_unique_id(unique_id))
         return device.get_metric_from_unique_id(unique_id)
 
     @property
@@ -273,8 +275,6 @@ class Hub:
         if self._client is None:
             return False
         return self._client.is_connected
-
-
 
 
 class CannotConnectError(Exception):

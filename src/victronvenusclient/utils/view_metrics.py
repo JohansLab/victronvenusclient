@@ -1,7 +1,5 @@
 """A simple utility to illustrate how to use the Victron Venus Client library
- to connect to a Venus OS device and display the metrics."""
-
-
+to connect to a Venus OS device and display the metrics."""
 
 import asyncio
 import inspect
@@ -60,27 +58,22 @@ class ConnectionDialog(simpledialog.Dialog):
 
 class AttributeViewerDialog(simpledialog.Dialog):
     """Dialog to display the attributes of an object."""
+
     def __init__(self, parent, instance):
         self.instance = instance
         super().__init__(parent, title="Attribute Viewer")
 
     def body(self, master):
         row = 0
-        for name, value in inspect.getmembers(
-            type(self.instance), lambda v: isinstance(v, property)
-        ):
+        for name, value in inspect.getmembers(type(self.instance), lambda v: isinstance(v, property)):
             try:
                 value = getattr(self.instance, name)
                 if isinstance(value, (Device, Metric, list, dict)):
                     continue
                 if callable(value):
                     continue
-                ttk.Label(master, text=f"{name}:").grid(
-                    row=row, column=0, sticky=tk.W, padx=5, pady=5
-                )
-                ttk.Label(master, text=str(value)).grid(
-                    row=row, column=1, sticky=tk.W, padx=5, pady=5
-                )
+                ttk.Label(master, text=f"{name}:").grid(row=row, column=0, sticky=tk.W, padx=5, pady=5)
+                ttk.Label(master, text=str(value)).grid(row=row, column=1, sticky=tk.W, padx=5, pady=5)
                 row += 1
             except AttributeError:
                 continue
@@ -101,21 +94,20 @@ class AttributeViewerDialog(simpledialog.Dialog):
 
 class MetricContainer:
     """A UI orientated container for a metric. Updates the item in the tree view when the metric changes."""
+
     def __init__(self, metric: Metric, tree_view: ttk.Treeview, parent_item: str):
         self._metric = metric
         self._metric.on_update = self._update
         self._tree_view = tree_view
         self._parent_item = parent_item
 
-    def _update(self, metric: Metric):   # pylint: disable=unused-argument
+    def _update(self, metric: Metric):  # pylint: disable=unused-argument
         formatted = self._metric.formatted_value
         self._tree_view.item(self._parent_item, values=(formatted,))
 
 
-
 class App:
     def __init__(self):
-
         self.root = tk.Tk()
 
         self.root.resizable(True, True)
@@ -127,9 +119,7 @@ class App:
         self.toolbar = ttk.Frame(self.root)
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
 
-        self.connect_button = ttk.Button(
-            self.toolbar, text="Connect", command=self._connect
-        )
+        self.connect_button = ttk.Button(self.toolbar, text="Connect", command=self._connect)
         self.connect_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         self.disconnect_button = ttk.Button(
@@ -137,9 +127,7 @@ class App:
         )
         self.disconnect_button.pack(side=tk.LEFT, padx=2, pady=2)
 
-        self.info_button = ttk.Button(
-            self.toolbar, text="Info", command=self._info, state=tk.DISABLED
-        )
+        self.info_button = ttk.Button(self.toolbar, text="Info", command=self._info, state=tk.DISABLED)
         self.info_button.pack(side=tk.LEFT, padx=10, pady=2)
 
         self.tree = ttk.Treeview(self.root, selectmode="browse")
@@ -167,7 +155,7 @@ class App:
     def to_quit(self):
         return self._to_quit
 
-    def _on_tree_select(self, event): # pylint: disable=unused-argument
+    def _on_tree_select(self, event):  # pylint: disable=unused-argument
         if len(self.tree.selection()) == 0:  # nothing selected
             if str(self.info_button["state"]) == tk.NORMAL:
                 self.info_button.config(state=tk.DISABLED)
@@ -175,16 +163,14 @@ class App:
             if str(self.info_button["state"]) == tk.DISABLED:
                 self.info_button.config(state=tk.NORMAL)
 
-    async def _async_connect(
-        self, server: str, port: int, username: str, password: str, use_ssl: bool
-    ) -> bool:
+    async def _async_connect(self, server: str, port: int, username: str, password: str, use_ssl: bool) -> bool:
         try:
             self._client = Hub(server, port, username, password, use_ssl)
             await self._client.connect()
             await self._client.initialize_devices_and_metrics()
             self._fill_tree()
             self.disconnect_button.config(state=tk.NORMAL)
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             message = str(e)
             if message == "":
                 message = type(e).__name__
@@ -193,7 +179,6 @@ class App:
             self.connect_button.config(state=tk.NORMAL)
 
     def _fill_tree(self):
-
         for device in self._client.devices:
             device_item = self.tree.insert(
                 "",
@@ -203,7 +188,7 @@ class App:
                 iid="D" + device.unique_id,
             )
             metrics = device.metrics
-            metrics.sort(key=lambda x: (x.phase if len(x.phase) > 0  else "L0") + x.short_id)
+            metrics.sort(key=lambda x: (x.phase if len(x.phase) > 0 else "L0") + x.short_id)
             for metric in metrics:
                 metric_item = self.tree.insert(
                     device_item,
@@ -212,9 +197,7 @@ class App:
                     values=(metric.formatted_value,),
                     iid="M" + metric.unique_id,
                 )
-                self._metric_containers.append(
-                    MetricContainer(metric, self.tree, metric_item)
-                )
+                self._metric_containers.append(MetricContainer(metric, self.tree, metric_item))
 
     def _info(self):
         item = self.tree.selection()[0]
@@ -227,7 +210,6 @@ class App:
             metric = self._client.get_metric_from_unique_id(unique_id)
             if metric is not None:
                 AttributeViewerDialog(self.root, metric)
-
 
     def _connect(self):
         self.connect_button.config(state=tk.DISABLED)
@@ -270,7 +252,6 @@ class App:
 
 
 def main():
-
     app = App()
 
     async def main_loop():

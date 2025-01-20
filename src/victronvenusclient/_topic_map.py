@@ -26,7 +26,6 @@ topic_map = {
         precision=None,
         unwrapper=unwrap_string,
     ),
-
     # inverter hides its serial number away in a different topic
     "N/+/vebus/+/Devices/0/SerialNumber": TopicDescriptor(
         message_type=MessageType.ATTRIBUTE,
@@ -37,9 +36,6 @@ topic_map = {
         precision=None,
         unwrapper=unwrap_string,
     ),
-
-
-
     "N/+/+/+/Manufacturer": TopicDescriptor(
         message_type=MessageType.ATTRIBUTE,
         short_id="manufacturer",
@@ -58,7 +54,6 @@ topic_map = {
         precision=0,
         unwrapper=unwrap_int,
     ),
-
     "N/+/+/+/FirmwareVersion": TopicDescriptor(
         message_type=MessageType.ATTRIBUTE,
         short_id="firmware_version",
@@ -68,12 +63,10 @@ topic_map = {
         precision=None,
         unwrapper=unwrap_string,
     ),
-
-
     # grid
     "N/+/system/+/Ac/Grid/NumberOfPhases": TopicDescriptor(
         message_type=MessageType.METRIC,
-        short_id="system_grid_phases", # system attribute
+        short_id="system_grid_phases",  # system attribute
         unit_of_measurement=None,
         metric_type=MetricType.NONE,
         metric_nature=MetricNature.INSTANTANEOUS,
@@ -163,11 +156,9 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
     #  cspell:ignore solarcharger MPPT
-
     # solar / MPPT  """ cspell:ignore  """
-    "N/+/solarcharger/+/Dc/0/Voltage": TopicDescriptor( # """ cspell:ignore  """
+    "N/+/solarcharger/+/Dc/0/Voltage": TopicDescriptor(  # """ cspell:ignore  """
         message_type=MessageType.METRIC,
         short_id="solar_voltage",
         unit_of_measurement="V",
@@ -308,10 +299,7 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
-
     # inverter
-
     "N/+/vebus/+/Ac/ActiveIn/+/P": TopicDescriptor(
         message_type=MessageType.METRIC,
         short_id="inverter_input_power_{phase}",
@@ -322,7 +310,6 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
     "N/+/vebus/+/Ac/ActiveIn/+/F": TopicDescriptor(
         message_type=MessageType.METRIC,
         short_id="inverter_input_frequency_{phase}",
@@ -333,7 +320,6 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
     "N/+/vebus/+/Ac/ActiveIn/+/S": TopicDescriptor(
         message_type=MessageType.METRIC,
         short_id="inverter_input_apparent_power_{phase}",
@@ -344,8 +330,6 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
-
     "N/+/vebus/+/Ac/Out/+/P": TopicDescriptor(
         message_type=MessageType.METRIC,
         short_id="inverter_output_power_{phase}",
@@ -356,7 +340,6 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
     "N/+/vebus/+/Ac/Out/+/F": TopicDescriptor(
         message_type=MessageType.METRIC,
         short_id="inverter_output_frequency_{phase}",
@@ -367,7 +350,6 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
     "N/+/vebus/+/Ac/Out/+/S": TopicDescriptor(
         message_type=MessageType.METRIC,
         short_id="inverter_output_apparent_power_{phase}",
@@ -378,7 +360,6 @@ topic_map = {
         precision=1,
         unwrapper=unwrap_float,
     ),
-
     # integrated system. Note that this might not be currently accurate for all systems
     #  as there are different physical configurations
     # and don't have access to any other for testing or feedback.

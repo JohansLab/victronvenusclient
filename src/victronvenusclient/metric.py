@@ -2,6 +2,7 @@
 Support for Victron Venus sensors. The sensor itself has no logic,
  it simply receives messages and updates its state.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -13,32 +14,19 @@ from victronvenusclient.data_classes import ParsedTopic, TopicDescriptor
 class Metric:
     """Representation of a Victron Venus sensor."""
 
-    def __init__(
-        self,
-        unique_id: str,
-        descriptor: TopicDescriptor,
-        parsed_topic: ParsedTopic,
-        value
-    ) -> None:
+    def __init__(self, unique_id: str, descriptor: TopicDescriptor, parsed_topic: ParsedTopic, value) -> None:
         """Initialize the sensor."""
-
 
         self._descriptor = descriptor
         self._unique_id = unique_id
         self._value = value
-        self._generic_short_id = descriptor.short_id.replace(
-            PLACEHOLDER_PHASE, "lx"
-        )
+        self._generic_short_id = descriptor.short_id.replace(PLACEHOLDER_PHASE, "lx")
 
         self._phase = parsed_topic.phase
-        self._on_update:Callable = None
-
+        self._on_update: Callable = None
 
         if parsed_topic.phase is not None:
-            self._short_id = descriptor.short_id.replace(
-                PLACEHOLDER_PHASE, parsed_topic.phase
-            )
-
+            self._short_id = descriptor.short_id.replace(PLACEHOLDER_PHASE, parsed_topic.phase)
 
     def __str__(self) -> str:
         """Return the string representation of the metric."""
@@ -58,8 +46,6 @@ class Metric:
                 return f"{fvalue:.{self._descriptor.precision}f} {self._descriptor.unit_of_measurement}"
         except (ValueError, TypeError):  # Handle cases where conversion fails
             return str(self._value)
-
-
 
     @property
     def value(self):
@@ -105,7 +91,7 @@ class Metric:
     def precision(self):
         """Returns the precision of the metric."""
         return self._descriptor.precision
-    
+
     @property
     def unique_id(self) -> str:
         """Return the unique id of the metric."""
@@ -120,7 +106,6 @@ class Metric:
     def on_update(self, value: Callable):
         """Sets the on_update callback."""
         self._on_update = value
-
 
     async def handle_message(self, parsed_topic, topic_desc, value):  # noqa: ARG002 pylint: disable=unused-argument
         """Handle a message."""

@@ -1,4 +1,5 @@
 """Data classes for Victron Venus OS integration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,11 +18,11 @@ class TopicDescriptor:
     message_type: str  # 'device', 'sensor', or 'system'
     short_id: str  # short id of the attribute/value (also translation key)
     unit_of_measurement: str = None
-    metric_type: MetricType  = MetricType.NONE
+    metric_type: MetricType = MetricType.NONE
     metric_nature: MetricNature = MetricNature.NONE
     device_type: DeviceType = DeviceType.ANY
-    precision: int  = 2
-    unwrapper: Callable= None
+    precision: int = 2
+    unwrapper: Callable = None
 
 
 @dataclass

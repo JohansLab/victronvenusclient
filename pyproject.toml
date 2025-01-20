@@ -46,10 +46,23 @@ check = "mypy --install-types --non-interactive {args:src/victronvenusclient tes
 dependencies = [
     "pytest",
     "pytest-mock",
-    "coverage",
+    "pytest-asyncio",
+    "victronvenusclient",
+    "coverage"
 ]
+
 commands = [
     "pytest --cov=victronvenusclient",  # Example command for running tests with coverage
+]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+  "pyfakefs",
+  "pytest-asyncio",
+  "pytest-benchmark",
+  "pytest-memray",
+  "pytest-playwright",
+  "pytest-print",
 ]
 
 [tool.hatch.envs.docs]
@@ -83,11 +96,12 @@ exclude_lines = [
 ]
 
 [tool.ruff]
+exclude = [".git", "__pycache__", "node_modules", "public", "venv"]
+line-length = 120
+target-version = "py39"
 
-ignore = [
-  # ignore version check that does not apply to Python < 3.10
-  "UP007"
-]
+[tool.ruff.lint]
+ignore = [  "UP007" ]
 
 [tool.setuptools]
 packages = ["victronvenusclient"]

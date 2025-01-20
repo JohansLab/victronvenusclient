@@ -3,11 +3,10 @@ from victronvenusclient import Hub, Device, Metric
 
 
 async def main():
-
-    hub = Hub("venus.local.",1883,None,None,False)
+    hub = Hub("venus.local.", 1883, None, None, False)
     await hub.connect()
     print("Connected!")
-    
+
     await hub.initialize_devices_and_metrics()
     print("Got all the devices and metrics!")
 
@@ -18,10 +17,8 @@ async def main():
         for metric in metrics:
             print(f"   {metric.short_id}{metric.formatted_value}")
 
-
     await hub.disconnect()
 
 
-
-if __name__ == '__main__':
-    run( main() )
+if __name__ == "__main__":
+    run(main())
