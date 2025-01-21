@@ -45,6 +45,7 @@ class Hub:
         self._first_refresh_event = asyncio.Event()
         self._installation_id_event = None
         self._snapshot = {}
+        self._keep_alive_task = None
 
     async def connect(self) -> None:
         """Connect to the hub."""
@@ -58,18 +59,21 @@ class Hub:
         if self._installation_id is None:
             self._installation_id = await self._read_installation_id()
         await self._setup_subscriptions()
-        await self.keep_alive()
+        self._start_keep_alive_loop()
         await self._wait_for_first_refresh()
 
     async def disconnect(self) -> None:
         """Disconnect from the hub."""
+        self._stop_keep_alive_loop()
         if self._client is None:
             return
         if self._client.is_connected:
             await self._client.disconnect()
         self._client = None
 
-    async def keep_alive(self) -> None:
+    
+
+    async def _keep_alive(self) -> None:
         """Send a keep alive message to the hub. Updates will only be made to the metrics
         for the 60 seconds following this method call."""
         # cspell:disable-next-line
@@ -79,6 +83,25 @@ class Hub:
             if self._client.is_connected:
                 self._client.publish(keep_alive_topic, b"1")
 
+
+    async def _keep_alive_loop(self) -> None:
+        """Run keep_alive every 30 seconds."""
+        while True:
+            await self._keep_alive()
+            await asyncio.sleep(30)
+
+    def _start_keep_alive_loop(self) -> None:
+        """Start the keep_alive loop."""
+        if self._keep_alive_task is None or self._keep_alive_task.done():
+            self._keep_alive_task = asyncio.create_task(self._keep_alive_loop())
+
+    def _stop_keep_alive_loop(self) -> None:
+        """Stop the keep_alive loop."""
+        if self._keep_alive_task is not None:
+            self._keep_alive_task.cancel()
+            self._keep_alive_task = None
+
+
     async def create_full_raw_snapshot(self) -> dict:
         """Create a full raw snapshot of the current state of the Venus OS device.
         Should not be used in conjunction with initialize_devices_and_metrics()."""
@@ -87,7 +110,7 @@ class Hub:
             self._installation_id = await self._read_installation_id()
         self._client.on_message = self._on_snapshot_message
         self._client.subscribe("#")
-        await self.keep_alive()
+        await self._keep_alive()
         await self._wait_for_first_refresh()
         return self._snapshot
 
