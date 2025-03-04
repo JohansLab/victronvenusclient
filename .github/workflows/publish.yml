@@ -22,7 +22,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install hatch
-          pip install build twine
 
       - name: Build distribution
         run: |
@@ -30,7 +29,7 @@ jobs:
 
       - name: Publish distribution
         env:
-          TWINE_USERNAME: __token__          # Required for token-based auth
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+          HATCH_INDEX_USER: __token__          # Required for token-based auth
+          HATCH_INDEX_AUTH: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          twine upload dist/*
+          hatch publish -n

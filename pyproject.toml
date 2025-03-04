@@ -24,7 +24,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "gmqtt>=0.6.0"
+  "gmqtt>=0.7.0"
   ]
 
 [project.urls]
