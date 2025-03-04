@@ -1,0 +1,36 @@
+name: Build and Publish to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*'  # This means any tag starting with 'v', like v1.0.0, v1.1.0, etc.
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"  # or your preferred Python version
+
+      - name: Install build tools
+        run: |
+          pip install --upgrade pip
+          pip install hatch
+          pip install build twine
+
+      - name: Build distribution
+        run: |
+          hatch build
+
+      - name: Publish distribution
+        env:
+          TWINE_USERNAME: __token__          # Required for token-based auth
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine upload dist/*
