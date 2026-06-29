@@ -1,3 +1,7 @@
+# ARCHIVED
+This repository is not archived. Please use the excellent implementation from tomer-w at [https://github.com/tomer-w/victron_mqtt](https://github.com/tomer-w/victron_mqtt)
+
+
 # victronvenusclient
 
 [![PyPI - Version](https://img.shields.io/pypi/v/victronvenusclient.svg)](https://pypi.org/project/victronvenusclient)
